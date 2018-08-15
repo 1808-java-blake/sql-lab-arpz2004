@@ -96,6 +96,7 @@ WHERE firstname = 'Robert' AND lastname = 'Walter';
 -- Task – Create a function that returns the average price of invoiceline items in the invoiceline table
 -- 3.4 User Defined Table Valued Functions
 -- Task – Create a function that returns all employees who are born after 1968.
+
 -- 4.0 Stored Procedures
 --  In this section you will be creating and executing stored procedures. You will be creating various types of stored procedures that take input and output parameters.
 -- 4.1 Basic Stored Procedure
@@ -105,28 +106,41 @@ WHERE firstname = 'Robert' AND lastname = 'Walter';
 -- Task – Create a stored procedure that returns the managers of an employee.
 -- 4.3 Stored Procedure Output Parameters
 -- Task – Create a stored procedure that returns the name and company of a customer.
+
 -- 5.0 Transactions
 -- In this section you will be working with transactions. Transactions are usually nested within a stored procedure. You will also be working with handling errors in your SQL.
 -- Task – Create a transaction that given a invoiceId will delete that invoice (There may be constraints that rely on this, find out how to resolve them).
 -- Task – Create a transaction nested within a stored procedure that inserts a new record in the Customer table
+
 -- 6.0 Triggers
 -- In this section you will create various kinds of triggers that work when certain DML statements are executed on a table.
 -- 6.1 AFTER/FOR
 -- Task - Create an after insert trigger on the employee table fired after a new record is inserted into the table.
 -- Task – Create an after update trigger on the album table that fires after a row is inserted in the table
 -- Task – Create an after delete trigger on the customer table that fires after a row is deleted from the table.
-
 -- 6.2 INSTEAD OF
 -- Task – Create an instead of trigger that restricts the deletion of any invoice that is priced over 50 dollars.
+
 -- 7.0 JOINS
 -- In this section you will be working with combing various tables through the use of joins. You will work with outer, inner, right, left, cross, and self joins.
 -- 7.1 INNER
 -- Task – Create an inner join that joins customers and orders and specifies the name of the customer and the invoiceId.
+SELECT firstname, lastname, invoiceid
+FROM customer NATURAL JOIN invoice;
 -- 7.2 OUTER
 -- Task – Create an outer join that joins the customer and invoice table, specifying the CustomerId, firstname, lastname, invoiceId, and total.
+SELECT customer.customerid, firstname, lastname, invoiceid, total
+FROM customer LEFT OUTER JOIN invoice ON customer.customerid = invoice.customerid;
 -- 7.3 RIGHT
 -- Task – Create a right join that joins album and artist specifying artist name and title.
+SELECT artist.name, title
+FROM album RIGHT OUTER JOIN artist ON album.artistid = artist.artistid;
 -- 7.4 CROSS
 -- Task – Create a cross join that joins album and artist and sorts by artist name in ascending order.
+SELECT *
+FROM album CROSS JOIN artist
+ORDER BY name;
 -- 7.5 SELF
 -- Task – Perform a self-join on the employee table, joining on the reportsto column.
+SELECT *
+FROM employee AS e1 INNER JOIN employee AS e2 ON e1.reportsto = e2.employeeid;
