@@ -88,14 +88,50 @@ WHERE firstname = 'Robert' AND lastname = 'Walter';
 -- In this section you will be using the Oracle system functions, as well as your own functions, to perform various actions against the database
 -- 3.1 System Defined Functions
 -- Task – Create a function that returns the current time.
+CREATE OR REPLACE FUNCTION get_time()
+RETURNS TIME AS $$
+	BEGIN
+		RETURN current_time;
+	END;
+$$ LANGUAGE plpgsql;
 -- Task – create a function that returns the length of a mediatype from the mediatype table
+CREATE OR REPLACE FUNCTION media_type_length(mediatype_id INTEGER)
+RETURNS TABLE(length INT) AS $$
+	BEGIN
+		RETURN QUERY SELECT LENGTH(name) FROM mediatype WHERE mediatypeid=mediatype_id;
+	END;
+$$ LANGUAGE plpgsql;
 -- 3.2 System Defined Aggregate Functions
 -- Task – Create a function that returns the average total of all invoices
+CREATE OR REPLACE FUNCTION average_invoice_total()
+RETURNS TABLE(average_total NUMERIC(10,2)) AS $$
+	BEGIN
+		RETURN QUERY SELECT AVG(total) FROM invoice;
+	END;
+$$ LANGUAGE plpgsql;
 -- Task – Create a function that returns the most expensive track
+CREATE OR REPLACE FUNCTION most_expensive_track()
+RETURNS SETOF track AS $$
+	BEGIN
+		RETURN QUERY SELECT * FROM track WHERE unitprice=(SELECT MAX(unitprice) FROM track);
+	END;
+$$ LANGUAGE plpgsql;
 -- 3.3 User Defined Scalar Functions
 -- Task – Create a function that returns the average price of invoiceline items in the invoiceline table
+CREATE OR REPLACE FUNCTION average_invoiceline_price()
+RETURNS TABLE(average_total NUMERIC(10,2)) AS $$
+	BEGIN
+		RETURN QUERY SELECT AVG(unitprice) FROM invoiceline;
+	END;
+$$ LANGUAGE plpgsql;
 -- 3.4 User Defined Table Valued Functions
 -- Task – Create a function that returns all employees who are born after 1968.
+CREATE OR REPLACE FUNCTION employees_born_after_1968()
+RETURNS SETOF employee AS $$
+	BEGIN
+		RETURN QUERY SELECT * FROM employee WHERE birthdate >= '1968-01-01';
+	END;
+$$ LANGUAGE plpgsql;
 
 -- 4.0 Stored Procedures
 --  In this section you will be creating and executing stored procedures. You will be creating various types of stored procedures that take input and output parameters.
