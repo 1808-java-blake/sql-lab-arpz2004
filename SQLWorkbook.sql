@@ -204,10 +204,75 @@ $$ LANGUAGE plpgsql;
 -- In this section you will create various kinds of triggers that work when certain DML statements are executed on a table.
 -- 6.1 AFTER/FOR
 -- Task - Create an after insert trigger on the employee table fired after a new record is inserted into the table.
+CREATE OR REPLACE FUNCTION employee_info()
+RETURNS trigger AS $$
+BEGIN
+    IF(TG_OP = 'INSERT') THEN
+        raise notice 'Employee with ID % added', NEW.employeeid;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER display_employee_insert
+AFTER INSERT ON employee
+FOR EACH ROW
+EXECUTE PROCEDURE employee_info();
 -- Task – Create an after update trigger on the album table that fires after a row is inserted in the table
+CREATE OR REPLACE FUNCTION album_info()
+RETURNS trigger AS $$
+BEGIN
+    IF(TG_OP = 'UPDATE') THEN
+        raise notice 'Album with ID % updated', OLD.albumid;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER display_album_update
+AFTER UPDATE ON album
+FOR EACH ROW
+EXECUTE PROCEDURE album_info();
 -- Task – Create an after delete trigger on the customer table that fires after a row is deleted from the table.
+CREATE OR REPLACE FUNCTION customer_info()
+RETURNS trigger AS $$
+BEGIN
+    IF(TG_OP = 'DELETE') THEN
+        raise notice 'Customer with ID % deleted', OLD.customerid;
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER display_customer_delete
+AFTER DELETE ON customer
+FOR EACH ROW
+EXECUTE PROCEDURE customer_info();
+
 -- 6.2 INSTEAD OF
 -- Task – Create an instead of trigger that restricts the deletion of any invoice that is priced over 50 dollars.
+CREATE VIEW invoice_view AS
+SELECT *
+FROM invoice;
+
+CREATE OR REPLACE FUNCTION invoice_over_50_not_deleted()
+RETURNS trigger AS $$
+BEGIN
+    IF(TG_OP = 'DELETE') THEN
+		IF OLD.total > 50 THEN
+        	raise notice 'Invoice with ID % not deleted because total is over $50', OLD.invoiceid;
+		ELSE
+			DELETE FROM invoice WHERE invoiceid=OLD.invoiceid;
+		END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_delete_invoice_over_50
+    INSTEAD OF DELETE ON invoice_view
+	FOR EACH ROW
+    EXECUTE PROCEDURE invoice_over_50_not_deleted();
 
 -- 7.0 JOINS
 -- In this section you will be working with combing various tables through the use of joins. You will work with outer, inner, right, left, cross, and self joins.
