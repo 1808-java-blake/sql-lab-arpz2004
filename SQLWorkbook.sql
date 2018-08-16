@@ -3,6 +3,7 @@ set schema 'chinook';
 -- 1.0	Setting up Oracle Chinook
 -- In this section you will begin the process of working with the Oracle Chinook database
 -- Task – Open the Chinook_Oracle.sql file and execute the scripts within.
+
 -- 2.0 SQL Queries
 -- In this section you will be performing various queries against the Oracle Chinook database.
 -- 2.1 SELECT
@@ -137,11 +138,40 @@ $$ LANGUAGE plpgsql;
 --  In this section you will be creating and executing stored procedures. You will be creating various types of stored procedures that take input and output parameters.
 -- 4.1 Basic Stored Procedure
 -- Task – Create a stored procedure that selects the first and last names of all the employees.
+CREATE OR REPLACE FUNCTION employee_names()
+RETURNS TABLE(first_name VARCHAR(20), last_name VARCHAR(20)) AS $$
+	BEGIN
+		RETURN QUERY SELECT firstname, lastname FROM employee;
+	END;
+$$ LANGUAGE plpgsql;
 -- 4.2 Stored Procedure Input Parameters
 -- Task – Create a stored procedure that updates the personal information of an employee.
+CREATE OR REPLACE FUNCTION update_employee_personal_info(employee_id INTEGER, first_name VARCHAR(20), last_name VARCHAR(20), address VARCHAR(70), city VARCHAR(40), 
+														 state VARCHAR(40), country VARCHAR(40), postal_code VARCHAR(10), phone VARCHAR(24), fax VARCHAR(24), 
+														 email VARCHAR(60))
+RETURNS VOID AS $$
+	BEGIN
+		UPDATE employee SET firstname=first_name, lastname=last_name, address=update_employee_personal_info.address, city=update_employee_personal_info.city,
+							state=update_employee_personal_info.state, country=update_employee_personal_info.country, postalcode=postal_code,
+							phone=update_employee_personal_info.phone, fax=update_employee_personal_info.fax, email=update_employee_personal_info.email
+		WHERE employeeid = employee_id;
+	END;
+$$ LANGUAGE plpgsql;
 -- Task – Create a stored procedure that returns the managers of an employee.
+CREATE OR REPLACE FUNCTION manager_of(employee_id INTEGER)
+RETURNS SETOF employee AS $$
+	BEGIN
+		RETURN QUERY SELECT mgr.* FROM employee AS e INNER JOIN employee AS mgr ON e.reportsto = mgr.employeeid WHERE e.employeeid=employee_id;
+	END;
+$$ LANGUAGE plpgsql;
 -- 4.3 Stored Procedure Output Parameters
 -- Task – Create a stored procedure that returns the name and company of a customer.
+CREATE OR REPLACE FUNCTION name_and_company_of(customer_id INTEGER)
+RETURNS Table(first_name VARCHAR(40), last_name VARCHAR(20), company VARCHAR(80)) AS $$
+	BEGIN
+		RETURN QUERY SELECT firstname, lastname, customer.company FROM customer WHERE customerid=customer_id;
+	END;
+$$ LANGUAGE plpgsql;
 
 -- 5.0 Transactions
 -- In this section you will be working with transactions. Transactions are usually nested within a stored procedure. You will also be working with handling errors in your SQL.
