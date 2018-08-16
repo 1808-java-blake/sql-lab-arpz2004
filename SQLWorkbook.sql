@@ -176,7 +176,29 @@ $$ LANGUAGE plpgsql;
 -- 5.0 Transactions
 -- In this section you will be working with transactions. Transactions are usually nested within a stored procedure. You will also be working with handling errors in your SQL.
 -- Task – Create a transaction that given a invoiceId will delete that invoice (There may be constraints that rely on this, find out how to resolve them).
+CREATE OR REPLACE FUNCTION delete_invoice(invoice_id INTEGER)
+RETURNS VOID AS $$
+	BEGIN
+		DELETE FROM invoiceline
+		WHERE invoiceid IN(
+			SELECT invoiceid
+			FROM invoice
+			WHERE invoiceid=invoice_id
+		);
+		DELETE FROM invoice WHERE invoiceid=invoice_id;
+	END;
+$$ LANGUAGE plpgsql;
 -- Task – Create a transaction nested within a stored procedure that inserts a new record in the Customer table
+CREATE OR REPLACE FUNCTION create_customer(customer_id INT, first_name VARCHAR(40), last_name VARCHAR(20), company VARCHAR(80), address VARCHAR(70), city VARCHAR(40),
+    									   state VARCHAR(40), country VARCHAR(40), postal_code VARCHAR(10), phone VARCHAR(24), fax VARCHAR(24), email VARCHAR(60),
+										   support_rep_id INT)
+RETURNS VOID AS $$
+	BEGIN
+		INSERT INTO customer(customerid, firstname, lastname, company, address, city, state, country, postalcode, phone, fax, email, supportrepid) 
+		VALUES (customer_id, first_name, last_name, create_customer.company, create_customer.address, create_customer.city, create_customer.state,
+			   create_customer.country, postal_code, create_customer.phone, create_customer.fax, create_customer.email, support_rep_id);
+	END;
+$$ LANGUAGE plpgsql;
 
 -- 6.0 Triggers
 -- In this section you will create various kinds of triggers that work when certain DML statements are executed on a table.
